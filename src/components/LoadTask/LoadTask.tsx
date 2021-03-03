@@ -1,24 +1,49 @@
+//TODO: Move code to component, Markdown is overkill and styles bad!
+// TODO: Move inputs to component?
+
 import React, {useEffect, useState} from "react";
-import {Button, FormControl, InputLabel, makeStyles, MenuItem, Paper, Select, Typography} from "@material-ui/core";
+import {Theme} from '@material-ui/core/styles/createMuiTheme';
+import {FormControl, InputLabel, makeStyles, MenuItem, Paper, Select, Typography} from "@material-ui/core";
 import ReactMarkdown from 'react-markdown'
-import Theme from "../../my_types/Theme";
+import TaskTheme from "../../my_types/TaskTheme";
 import Task from "../../my_types/Task";
 import TaskResultDialog from "./TaskResultDialog";
+import "@fontsource/roboto-mono/300.css"
+
+
+const useStyles = makeStyles((styles: Theme) => ({
+  paper: {
+    marginTop: styles.spacing(4),
+    marginBottom: styles.spacing(4),
+    margin: "auto",
+    padding: styles.spacing(2),
+    width: "600px",
+  },
+  markdown: {
+    fontFamily: 'Roboto Mono',
+    fontSize: '1rem',
+  },
+  text: {
+    marginTop: "1rem",
+    marginBottom: "1rem",
+  },
+  lastInput: {
+    marginBottom: "1.5rem"
+  }
+}));
 
 export default function LoadTask() {
-  const [themes, setLessons] = useState<Theme[]>([]);
+  const [themes, setLessons] = useState<TaskTheme[]>([]);
   const [themeId, setLessonid] = useState(0);
 
   const [tasks, setTasks] = useState<Task[]>([])
   const [taskId, setTaskId] = useState(0)
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-
   useEffect(() => {
     fetch("/tasks")
       .then(r => r.json())
       .then(data => {
-        setLessons(data[0] as Theme[])
+        setLessons(data[0] as TaskTheme[])
         setTasks(data[1] as Task[])
       })
   }, []);
@@ -31,8 +56,10 @@ export default function LoadTask() {
     setTaskId(event.target.value as number);
   }
 
+  const styles = useStyles();
+
   return (
-    <Paper>
+    <Paper className={styles.paper}>
       <FormControl fullWidth>
         <InputLabel id={"theme-id-label"}>Тема</InputLabel>
         <Select
@@ -48,7 +75,7 @@ export default function LoadTask() {
           }
         </Select>
       </FormControl>
-      <FormControl fullWidth>
+      <FormControl className={styles.lastInput} fullWidth>
         <InputLabel id={"task-id-label"}>Упражнение</InputLabel>
         <Select
           labelId={"task-id-label"}
@@ -68,15 +95,15 @@ export default function LoadTask() {
         ? (
           <React.Fragment>
             <Typography variant={"h5"}>Текст задачи:</Typography>
-            <Typography>{tasks[taskId - 1].text}</Typography>
+            <Typography className={styles.text}>{tasks[taskId - 1].text}</Typography>
             <Typography variant={"h5"}>Пример ввода:</Typography>
-            <ReactMarkdown>{"```\n" + tasks[taskId - 1].input + "\n```"}</ReactMarkdown>
+            <ReactMarkdown className={styles.markdown}>{"```\n" + tasks[taskId - 1].input + "\n```"}</ReactMarkdown>
             <Typography variant={"h5"}>Пример вывода:</Typography>
-            <ReactMarkdown>{"```\n" + tasks[taskId - 1].output + "\n```"}</ReactMarkdown>
+            <ReactMarkdown className={styles.markdown}>{"```\n" + tasks[taskId - 1].output + "\n```"}</ReactMarkdown>
           </React.Fragment>
         )
         : null}
-        <TaskResultDialog taskId={taskId} />
+      <TaskResultDialog taskId={taskId} />
     </Paper>
   )
 }

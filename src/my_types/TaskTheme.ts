@@ -1,4 +1,4 @@
-export default interface Theme {
+export default interface TaskTheme {
     id: number,
     name: string,
 }
